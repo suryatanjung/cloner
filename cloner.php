@@ -19,7 +19,7 @@ if ( ! empty( $_GET['route'] ) )
 */
 $curl = curl_init();
 curl_setopt_array( $curl, array( 
-   CURLOPT_URL              => '                  ' . $route . '/',
+   CURLOPT_URL              => '                 ' . $route . '/',
    CURLOPT_RETURNTRANSFER   => true,
    CURLOPT_TIMEOUT          => 5, 
    CURLOPT_SSL_VERIFYHOST   => 5, 
@@ -42,7 +42,7 @@ if (false !== $data ) {
                   substr( $item, 0, 4 ) == 'http' )
                   continue;
 
-             $data = str_replace($item, '                ' . ltrim( $item, '/' ), $data );
+             $data = str_replace( $item, '                 ' . ltrim( $item, '/' ), $data );
          }
     }
 
@@ -59,5 +59,10 @@ if (false !== $data ) {
          }
     }
 
+    /* Replace specific href anchor links */
+    $data = str_replace('https://example.com/old-link-1', 'https://example.com/new-link-1', $data);
+    $data = str_replace('https://example.com/old-link-2', 'https://example.com/new-link-2', $data);
+    $data = str_replace('https://example.com/old-link-3', 'https://example.com/new-link-3', $data);
+      
     echo $data;
 }
