@@ -19,11 +19,11 @@ if ( ! empty( $_GET['route'] ) )
 */
 $curl = curl_init();
 curl_setopt_array( $curl, array( 
-   CURLOPT_URL              => '                 ' . $route . '/',
+   CURLOPT_URL              => 'https://example.com' . $route . '/route',      // Original URL + Route
    CURLOPT_RETURNTRANSFER   => true,
    CURLOPT_TIMEOUT          => 5, 
    CURLOPT_SSL_VERIFYHOST   => 5, 
-   CURLOPT_SSL_VERIFYPEER   => 0, 
+   CURLOPT_SSL_VERIFYPEER   => true, 
 )); 
 $data = curl_exec( $curl ); 
 curl_close( $curl );
@@ -60,9 +60,9 @@ if (false !== $data ) {
     }
 
     /* Replace specific href anchor links */
-    $data = str_replace('https://example.com/old-link-1', 'https://example.com/new-link-1', $data);
-    $data = str_replace('https://example.com/old-link-2', 'https://example.com/new-link-2', $data);
-    $data = str_replace('https://example.com/old-link-3', 'https://example.com/new-link-3', $data);
+    $data = str_replace('https://example.com/old-link-1', 'https://example.com/new-link-1', $data);      // Replace URL 1
+    $data = str_replace('https://example.com/old-link-2', 'https://example.com/new-link-2', $data);      // Replace URL 2
+    $data = str_replace('https://example.com/old-link-3', 'https://example.com/new-link-3', $data);      // Replace URL 3
       
     echo $data;
 }
