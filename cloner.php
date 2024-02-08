@@ -59,10 +59,13 @@ if (false !== $data ) {
          }
     }
 
-    /* Replace specific href anchor links */
-    $data = str_replace('https://example.com/old-link-1', 'https://example.com/new-link-1', $data);      // Replace URL 1
-    $data = str_replace('https://example.com/old-link-2', 'https://example.com/new-link-2', $data);      // Replace URL 2
-    $data = str_replace('https://example.com/old-link-3', 'https://example.com/new-link-3', $data);      // Replace URL 3
+      /* Replace specific href anchor links */
+      $data = str_replace('https://example.com/old-link-1', 'https://example.com/new-link-1', $data);      // Replace URL 1
+      $data = str_replace('https://example.com/old-link-2', 'https://example.com/new-link-2', $data);      // Replace URL 2
+      $data = str_replace('https://example.com/old-link-3', 'https://example.com/new-link-3', $data);      // Replace URL 3
+
+      /* Replace all href anchor links with one new link */
+      $data = preg_replace('/href="[^"]+"/', 'href="https://example.com/new-link-for-the-rest"', $data);      // Replace All The Rest Link
       
     echo $data;
 }
