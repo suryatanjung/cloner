@@ -1,6 +1,12 @@
 <?php 
 /**
+* Example Proxy
+* This script acts as a proxy to fetch content from a specified URL and adjust URLs and CSS links within that content.
 * @author github.com/suryatanjung <hi@jung.bz>
+*/
+
+/**
+* Determine request
 */
 $route = '';
 if ( ! empty( $_GET['route'] ) ) 
@@ -24,6 +30,7 @@ curl_close( $curl );
 
 if (false !== $data ) {
   
+    /* Adjust URLs */
     if ( preg_match_all( '@src=([\'"])(.*)([\'"])@', $data, $m ) )
     {
          foreach ( $m[2] as $item ) 
@@ -39,6 +46,7 @@ if (false !== $data ) {
          }
     }
 
+    /* Adjust CSS links */
     if ( preg_match_all( '@<link[^>]*href="([^"]*\.css)"[^>]*>@', $data, $m ) )
     {
          foreach ( $m[1] as $item )
