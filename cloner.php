@@ -53,7 +53,7 @@ if (false !== $data) {
     }
 
     // Check and adjust canonical URL
-    $customCanonicalURL = 'https/sor.bz';
+    $customCanonicalURL = 'https/example.com';
     $addCanonicalTag = false; // Set to true to add the tag, false to remove it
 
     if ($addCanonicalTag) {
