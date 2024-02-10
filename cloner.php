@@ -15,7 +15,7 @@ if (!empty($_GET['route'])) {
 // Proxy
 $curl = curl_init();
 curl_setopt_array($curl, array( 
-   CURLOPT_URL              => 'https://example.com' . $route . '/',      // Original URL + Route
+   CURLOPT_URL              => 'https://www.example.com' . $route . '/example-route',      // Original URL + Route
    CURLOPT_RETURNTRANSFER   => true,
    CURLOPT_TIMEOUT          => 5, 
    CURLOPT_SSL_VERIFYHOST   => 5, 
@@ -53,7 +53,7 @@ if (false !== $data) {
     }
 
     // Check and adjust canonical URL
-    $customCanonicalURL = 'https/example.com';
+    $customCanonicalURL = 'https://www.example.com';
     $addCanonicalTag = false; // Set to true to add the tag, false to remove it
 
     if ($addCanonicalTag) {
@@ -83,15 +83,21 @@ if (false !== $data) {
     // Define old and new link URLs
     $link_pairs = array(
         array(
-            'old_link' => 'https://example.com/old1',
-            'new_link' => 'https://example.com/new1',
-            'new_rel' => 'sponsored ugc'
+            'old_link' => 'https://www.example.com/old-link-1',
+            'new_link' => 'https://www.example.com/new-link-1',
+            'new_rel' => 'example-rel'
         ),
         array(
-            'old_link' => 'https://example.com/old2',
-            'new_link' => 'https://example.com/new2',
-            'new_rel' => 'ugc sponsored'
-        )
+            'old_link' => 'https://www.example.com/old-link-2',
+            'new_link' => 'https://www.example.com/new-link-2',
+            'new_rel' => 'example-rel'
+        ),
+        array(
+            'old_link' => 'https://www.example.com/old-link-3',
+            'new_link' => 'https://www.example.com/new-link-3',
+            'new_rel' => 'example-rel'
+        ),
+        // Add more link replacements as needed
     );
 
     // Loop through each link pair for replacement
@@ -100,11 +106,8 @@ if (false !== $data) {
         $new_link = $pair['new_link'];
         $new_rel = $pair['new_rel'];
 
-        // Replace href attribute
-        $data = str_replace($old_link, $new_link, $data);
-
-        // Replace or add rel attribute
-        $data = preg_replace('/<a\s+([^>]*)\bhref="' . preg_quote($new_link, '/') . '"([^>]*)>/i', '<a $1href="' . $new_link . '" rel="' . $new_rel . '"$2>', $data);
+        // Replace href attribute and add rel attribute if the href attribute is replaced
+        $data = preg_replace('/<a\s+([^>]*\bhref=")' . preg_quote($old_link, '/') . '([^"]*)"/i', '<a $1' . $new_link . '$2" rel="' . $new_rel . '"', $data);
     }
 
     echo $data;
