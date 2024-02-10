@@ -106,8 +106,8 @@ if (false !== $data) {
         $new_link = $pair['new_link'];
         $new_rel = $pair['new_rel'];
 
-        // Replace href attribute and add rel attribute if the href attribute is replaced
-        $data = preg_replace('/<a\s+([^>]*\bhref=")' . preg_quote($old_link, '/') . '([^"]*)"/i', '<a $1' . $new_link . '$2" rel="' . $new_rel . '"', $data);
+        // Replace href attribute within <a> tags while ignoring other attributes
+        $data = preg_replace('/<a\s+([^>]*)\bhref="' . preg_quote($old_link, '/') . '([^"]*)"/i', '<a $1href="' . $new_link . '$2" rel="' . $new_rel . '"', $data);
     }
 
     echo $data;
