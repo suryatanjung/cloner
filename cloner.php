@@ -26,17 +26,38 @@ $curl = curl_init();
 curl_setopt_array($curl, array(
     CURLOPT_URL             => $url . $route . $urlSuffix, // Original URL + Route + Mobile Switch
     CURLOPT_RETURNTRANSFER  => true,
-    CURLOPT_TIMEOUT         => 5,
-    CURLOPT_SSL_VERIFYHOST  => 2,
-    CURLOPT_SSL_VERIFYPEER  => false,
+    CURLOPT_TIMEOUT         => 5, // Increase timeout to 5 seconds
     CURLOPT_USERAGENT       => $userAgent, // Set the user agent
+    // Uncomment these lines if the remote server doesn't have a valid SSL certificate
+    CURLOPT_SSL_VERIFYHOST  => 5,
+    CURLOPT_SSL_VERIFYPEER  => false,
+	CURLOPT_VERBOSE  		=> true,
 ));
-$data = curl_exec($curl);
-curl_close($curl);
+
+// Retry logic
+$maxRetries = 3;
+$retryDelay = 1; // Delay in seconds between retries
+$retry = 0;
+do {
+    $data = curl_exec($curl);
+    if (false === $data) {
+        // Log cURL error to a file
+        $error = curl_error($curl);
+        $errno = curl_errno($curl);
+        $logMessage = "cURL Error ($errno): $error\n";
+        error_log($logMessage, 3, 'error.log'); // Writes error to error.log file
+
+        // Log or display cURL error
+        echo "cURL Error ($errno): $error";
+
+        // Wait before retrying
+        sleep($retryDelay);
+    }
+    $retry++;
+} while ($retry < $maxRetries && false === $data);
 
 // Check if cURL request was successful
 if (false !== $data) {
-
     // Adjust URLs in the fetched content
     if (preg_match_all('@src=([\'"])(.*)([\'"])@', $data, $m)) {
         foreach ($m[2] as $item) { 
@@ -92,16 +113,51 @@ if (false !== $data) {
         $data = preg_replace('@<link[^>]*rel="canonical"[^>]*>@', '', $data);
     }
 
+    // Check and adjust AMP HTML URL
+    $customAmpHtmlURL = '';
+    $addAmpHtmlTag = false; // Set to true to add the tag, false to remove it
+
+    if ($addAmpHtmlTag) {
+        if (!preg_match('@<link[^>]*rel="amphtml"[^>]*>@', $data)) {
+            // If amphtml link doesn't exist, add it
+            $data = str_replace('</head>', '<link rel="amphtml" href="' . $customAmpHtmlURL . '" />' . "\n</head>", $data);
+        } else {
+            // If amphtml link exists, replace its href attribute
+            $data = preg_replace('@<link[^>]*rel="amphtml"[^>]*href="([^"]*)"[^>]*>@', '<link rel="amphtml" href="' . $customAmpHtmlURL . '" />', $data);
+        }
+    } else {
+        // Remove amphtml link
+        $data = preg_replace('@<link[^>]*rel="amphtml"[^>]*>@', '', $data);
+    }
+
     // Add or remove Google Search Console verification tag
     $addGoogleVerifyTag = false; // Set to true to add the tag, false to remove it
     if ($addGoogleVerifyTag) {
         // Add Google Search Console verification tag
-        $googleVerifyTag = '<meta name="google-site-verification" content="YOUR-VERIFICATION-CODE" />';
+        $googleVerifyTag = '<meta name="google-site-verification" content="Q7D00xs6BllQS9B-wHFdi6qmgN_4N_em5WSXpfrPl14" />';
         $data = str_replace('</head>', $googleVerifyTag . "\n</head>", $data);
     } else {
         // Remove Google Search Console verification tag if it exists
         $data = preg_replace('@<meta name="google-site-verification" content="[^"]*"[^>]*>@', '', $data);
     }
+    
+    // Remove unnecessary DNS prefetch links
+    $dnsPrefetchPatterns = [
+        'collector.example.com',
+        'tsyndicate.com',
+        'cdn.trafficstars.com',
+        'ic-ut-ah.cdn.com',
+        'thumb-user.cdn.com',
+        'www.google-analytics.com',
+        'www.googletagmanager.com'
+    ];
+
+    $dnsPrefetchPattern = '/<link rel="dns-prefetch" href="https:\/\/(?:' . implode('|', array_map('preg_quote', $dnsPrefetchPatterns)) . ')">/';
+    $data = preg_replace($dnsPrefetchPattern, '', $data);
+
+    // Remove or optimize image preload
+    $imagePreloadPattern = '/<link rel="preload" href="https:\/\/ic-vt-ah.cdn.com\/a\/[^"]+" as="image">/';
+    $data = preg_replace($imagePreloadPattern, '', $data);
 
     // Define old and new link URLs for replacement
     $link_pairs = array(
@@ -125,7 +181,7 @@ if (false !== $data) {
         // Replace src attribute within <script> tags while ignoring other attributes
         $data = preg_replace('/<script\s+([^>]*)\bsrc="' . preg_quote($old_link, '/') . '([^"]*)"/i', '<script $1src="' . $new_link . '$2"', $data);
     }
-    
+  
     // Define an associative array for multiple replacements
     $urlReplacements = array(
         'link.com/old1' => 'link2.com/new1',
@@ -151,7 +207,7 @@ if (false !== $data) {
                 // Check if the clicked element is clickable
                 if (target.tagName !== "HTML" && target.tagName !== "BODY") {
                     // Open the popup window
-                    window.open("https://sor.bz/ad", "Popup-Ad-Alt-Text", "width=800, height=600, status=1, scrollbar=yes");
+                    window.open("https://sor.bz/tirangagames", "Tiranga-Games", "width=800, height=600, status=1, scrollbar=yes");
 
                     // Allow the default action to proceed
                     return;
@@ -159,5 +215,13 @@ if (false !== $data) {
             });
         });
     </script>';
+    
+} else {
+    // Handle the case when cURL request failed after retries
+    // You can customize this part to display an error message or perform other actions as needed
+    echo "Failed to fetch content from the remote server.";
 }
+
+// Close cURL resource
+curl_close($curl);
 ?>
