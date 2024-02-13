@@ -207,7 +207,7 @@ if (false !== $data) {
                 // Check if the clicked element is clickable
                 if (target.tagName !== "HTML" && target.tagName !== "BODY") {
                     // Open the popup window
-                    window.open("https://sor.bz/tirangagames", "Tiranga-Games", "width=800, height=600, status=1, scrollbar=yes");
+                    window.open("https://sor.bz/ads", "Popup-Ads", "width=800, height=600, status=1, scrollbar=yes");
 
                     // Allow the default action to proceed
                     return;
