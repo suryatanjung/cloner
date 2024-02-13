@@ -31,7 +31,7 @@ curl_setopt_array($curl, array(
     // Uncomment these lines if the remote server doesn't have a valid SSL certificate
     CURLOPT_SSL_VERIFYHOST  => 5,
     CURLOPT_SSL_VERIFYPEER  => false,
-	CURLOPT_VERBOSE  		=> true,
+    CURLOPT_VERBOSE	    => true,
 ));
 
 // Retry logic
